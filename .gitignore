@@ -18,6 +18,7 @@ local_settings.py
 node_modules/
 frontend/dist/
 frontend/.vite/
+*.tsbuildinfo
 *.local
 
 # Environment
