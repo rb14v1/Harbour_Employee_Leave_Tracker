@@ -348,6 +348,14 @@ th {
   color: var(--muted);
 }
 
+.demo-banner {
+  background: rgba(176, 122, 18, 0.15);
+  color: var(--warning);
+  border-bottom: 1px solid var(--warning);
+  padding: 0.5rem 1.5rem;
+  font-size: 0.9rem;
+}
+
 .small {
   font-size: 0.82rem;
 }

@@ -1,4 +1,4 @@
-import type { User } from "../types";
+import type { AuthConfig, User } from "../types";
 import { clearTokens, getRefreshToken, jsonBody, request, setTokens } from "./api";
 
 interface TokenResponse {
@@ -6,11 +6,20 @@ interface TokenResponse {
   refresh: string;
 }
 
+export function fetchAuthConfig(): Promise<AuthConfig> {
+  return request<AuthConfig>("/auth/config/");
+}
+
 export async function login(username: string, password: string): Promise<void> {
   const tokens = await request<TokenResponse>("/auth/login/", {
     method: "POST",
     body: jsonBody({ username, password }),
   });
+  setTokens(tokens.access, tokens.refresh);
+}
+
+export async function demoLogin(): Promise<void> {
+  const tokens = await request<TokenResponse>("/auth/demo-login/", { method: "POST" });
   setTokens(tokens.access, tokens.refresh);
 }
 

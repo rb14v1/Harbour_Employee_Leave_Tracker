@@ -10,7 +10,7 @@ const NAV_ITEMS = [
 ];
 
 export function Layout() {
-  const { user, logout } = useAuth();
+  const { user, logout, demoMode } = useAuth();
   const navigate = useNavigate();
 
   async function handleLogout() {
@@ -31,11 +31,18 @@ export function Layout() {
         </nav>
       </aside>
       <div className="main">
+        {demoMode && (
+          <div className="demo-banner" role="status">
+            Demo mode: signed in automatically as a demo administrator. Anyone with access to this app can change its data.
+          </div>
+        )}
         <header className="topbar">
           <span className="muted">Signed in as {user?.username}</span>
-          <button type="button" className="button secondary" onClick={handleLogout}>
-            Log out
-          </button>
+          {!demoMode && (
+            <button type="button" className="button secondary" onClick={handleLogout}>
+              Log out
+            </button>
+          )}
         </header>
         <main className="content">
           <Outlet />

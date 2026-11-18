@@ -13,6 +13,10 @@ export interface User {
   last_name: string;
 }
 
+export interface AuthConfig {
+  demo_mode: boolean;
+}
+
 export interface Employee {
   id: number;
   employee_id: string;

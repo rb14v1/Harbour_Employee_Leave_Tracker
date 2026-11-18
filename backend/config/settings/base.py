@@ -84,6 +84,9 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+DEMO_AUTO_LOGIN = os.environ.get("DEMO_AUTO_LOGIN", "0").strip().lower() in ("1", "true", "yes")
+DEMO_ADMIN_USERNAME = os.environ.get("DEMO_ADMIN_USERNAME", "demo").strip() or "demo"
+
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework_simplejwt.authentication.JWTAuthentication",

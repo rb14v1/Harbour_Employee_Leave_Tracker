@@ -61,6 +61,12 @@ Business rules:
 - Overlapping pending or approved applications for the same employee are rejected (409).
 - Approval checks the balance (400 if insufficient). Only pending applications can be edited, approved ones cannot be deleted.
 
+## Demo mode (optional)
+
+Set `DEMO_AUTO_LOGIN=1` in `backend/.env` to skip the sign-in page. The app then signs in as a `demo` administrator (or `DEMO_ADMIN_USERNAME`). The demo account has no password, so it can't be used through the normal login form.
+
+Warning: anyone who can open the app has full admin access while this is on. Use it only on a local or private demo database. Default is off.
+
 ## Frontend setup (local)
 
 ```bash

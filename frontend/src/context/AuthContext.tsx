@@ -1,39 +1,85 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
-import { AUTH_EXPIRED_EVENT, getAccessToken, clearTokens } from "../services/api";
-import { fetchCurrentUser, login as loginRequest, logout as logoutRequest } from "../services/auth";
+import { AUTH_EXPIRED_EVENT, clearTokens, getAccessToken } from "../services/api";
+import {
+  demoLogin as demoLoginRequest,
+  fetchAuthConfig,
+  fetchCurrentUser,
+  login as loginRequest,
+  logout as logoutRequest,
+} from "../services/auth";
 import type { User } from "../types";
 
 interface AuthContextValue {
   user: User | null;
   loading: boolean;
+  demoMode: boolean;
   login: (username: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
+async function startDemoSession(): Promise<User> {
+  await demoLoginRequest();
+  return fetchCurrentUser();
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState<boolean>(() => getAccessToken() !== null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [demoMode, setDemoMode] = useState<boolean>(false);
 
   useEffect(() => {
-    if (!getAccessToken()) {
-      return;
+    let active = true;
+
+    async function restoreSession() {
+      const config = await fetchAuthConfig().catch(() => ({ demo_mode: false }));
+      if (active) {
+        setDemoMode(config.demo_mode);
+      }
+
+      if (getAccessToken()) {
+        try {
+          const current = await fetchCurrentUser();
+          if (active) setUser(current);
+          return;
+        } catch {
+          clearTokens();
+        }
+      }
+
+      if (config.demo_mode) {
+        const current = await startDemoSession();
+        if (active) setUser(current);
+      }
     }
-    fetchCurrentUser()
-      .then(setUser)
+
+    restoreSession()
       .catch(() => {
-        clearTokens();
-        setUser(null);
+        if (active) setUser(null);
       })
-      .finally(() => setLoading(false));
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   useEffect(() => {
-    const handleExpired = () => setUser(null);
+    const handleExpired = () => {
+      if (!demoMode) {
+        setUser(null);
+        return;
+      }
+      startDemoSession()
+        .then(setUser)
+        .catch(() => setUser(null));
+    };
     window.addEventListener(AUTH_EXPIRED_EVENT, handleExpired);
     return () => window.removeEventListener(AUTH_EXPIRED_EVENT, handleExpired);
-  }, []);
+  }, [demoMode]);
 
   const login = useCallback(async (username: string, password: string) => {
     await loginRequest(username, password);
@@ -48,7 +94,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const value = useMemo(() => ({ user, loading, login, logout }), [user, loading, login, logout]);
+  const value = useMemo(
+    () => ({ user, loading, demoMode, login, logout }),
+    [user, loading, demoMode, login, logout],
+  );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
