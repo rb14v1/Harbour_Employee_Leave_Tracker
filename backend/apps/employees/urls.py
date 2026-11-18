@@ -1,3 +1,8 @@
-from django.urls import path
+from rest_framework.routers import SimpleRouter
 
-urlpatterns = []
+from .views import EmployeeViewSet
+
+router = SimpleRouter()
+router.register("employees", EmployeeViewSet, basename="employee")
+
+urlpatterns = router.urls
