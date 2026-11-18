@@ -6,13 +6,11 @@ import { DashboardPage } from "./pages/DashboardPage";
 import { EmployeesPage } from "./pages/EmployeesPage";
 import { LeaveApplicationsPage } from "./pages/LeaveApplicationsPage";
 import { LeaveTypesPage } from "./pages/LeaveTypesPage";
-import { LoginPage } from "./pages/LoginPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 
 export default function App() {
   return (
     <Routes>
-      <Route path="/login" element={<LoginPage />} />
       <Route
         element={
           <ProtectedRoute>
