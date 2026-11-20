@@ -41,7 +41,7 @@ python manage.py test
 
 ## API
 
-All routes are under `/api/`. Health check: `GET /api/health/`.
+All routes are under `/api/`. Health check: `GET /api/health/`, or run `python healthz.py` from the repo root (exits 0 when healthy, 1 otherwise; set `HEALTHCHECK_URL` to check another host).
 
 | Method | Route | Purpose |
 |---|---|---|
