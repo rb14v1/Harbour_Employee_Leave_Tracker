@@ -15,13 +15,18 @@ import urllib.error
 import urllib.request
 
 DEFAULT_URL = "http://127.0.0.1:8000/api/health/"
-TIMEOUT_SECONDS = 3
+DEFAULT_TIMEOUT_SECONDS = 3.0
 
 
 def main() -> int:
     url = os.environ.get("HEALTHCHECK_URL", DEFAULT_URL)
     try:
-        with urllib.request.urlopen(url, timeout=TIMEOUT_SECONDS) as response:
+        timeout = float(os.environ.get("HEALTHCHECK_TIMEOUT_SECONDS") or DEFAULT_TIMEOUT_SECONDS)
+    except ValueError:
+        print("invalid HEALTHCHECK_TIMEOUT_SECONDS: must be a number")
+        return 1
+    try:
+        with urllib.request.urlopen(url, timeout=timeout) as response:
             body = json.loads(response.read().decode("utf-8"))
             if response.status == 200 and body.get("status") == "ok":
                 print(f"healthy: {url}")
