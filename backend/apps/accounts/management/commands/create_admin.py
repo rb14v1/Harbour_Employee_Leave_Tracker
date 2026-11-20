@@ -1,26 +1,34 @@
 import os
 
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 from django.db import transaction
 
 from apps.accounts.models import User
 
+DEFAULT_USERNAME = "admin"
+DEFAULT_EMAIL = "admin@example.com"
+
 
 class Command(BaseCommand):
     help = (
-        "Create the administrator account from DJANGO_ADMIN_USERNAME, "
-        "DJANGO_ADMIN_EMAIL and DJANGO_ADMIN_PASSWORD. Idempotent: does nothing if the user exists."
+        "Create the administrator account from DJANGO_ADMIN_USERNAME (default 'admin'), "
+        "DJANGO_ADMIN_EMAIL (default 'admin@example.com') and DJANGO_ADMIN_PASSWORD (required, no default). "
+        "Skips with a warning when no password is set. Idempotent: does nothing if the user exists."
     )
 
     def handle(self, *args, **options):
-        username = os.environ.get("DJANGO_ADMIN_USERNAME", "").strip()
-        email = os.environ.get("DJANGO_ADMIN_EMAIL", "").strip()
+        username = os.environ.get("DJANGO_ADMIN_USERNAME", "").strip() or DEFAULT_USERNAME
+        email = os.environ.get("DJANGO_ADMIN_EMAIL", "").strip() or DEFAULT_EMAIL
         password = os.environ.get("DJANGO_ADMIN_PASSWORD", "")
 
-        if not username or not email or not password:
-            raise CommandError(
-                "DJANGO_ADMIN_USERNAME, DJANGO_ADMIN_EMAIL and DJANGO_ADMIN_PASSWORD must be set."
+        if not password:
+            self.stdout.write(
+                self.style.WARNING(
+                    "DJANGO_ADMIN_PASSWORD is not set. Skipping admin creation. "
+                    "Set it in backend/.env to create the admin account."
+                )
             )
+            return
 
         with transaction.atomic():
             if User.objects.filter(username=username).exists():
