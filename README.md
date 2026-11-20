@@ -81,7 +81,7 @@ Production build: `npm run build`.
 
 ## Docker
 
-Copy `.env.example` to `.env`, set `POSTGRES_PASSWORD` and `DJANGO_SECRET_KEY`, then:
+Copy `.env.example` to `.env`, set `POSTGRES_PASSWORD` and `DJANGO_SECRET_KEY`, and optionally `DJANGO_ADMIN_PASSWORD` (no default; admin creation is skipped while it is empty). Docker reads these from the root `.env`, which takes precedence over `backend/.env`. Then:
 
 ```bash
 docker compose up --build
