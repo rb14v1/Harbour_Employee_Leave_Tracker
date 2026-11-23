@@ -8,11 +8,13 @@ User = get_user_model()
 
 
 class DemoLoginTests(APITestCase):
-    def test_config_reports_demo_mode_off_by_default(self):
+    @override_settings(DEMO_AUTO_LOGIN=False)
+    def test_config_reports_demo_mode_off_when_disabled(self):
         response = self.client.get(reverse("auth-config"))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertFalse(response.data["demo_mode"])
 
+    @override_settings(DEMO_AUTO_LOGIN=False)
     def test_demo_login_is_not_found_when_disabled(self):
         response = self.client.post(reverse("auth-demo-login"))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)

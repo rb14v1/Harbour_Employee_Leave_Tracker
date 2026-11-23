@@ -17,7 +17,14 @@ SECRET_KEY = env.str("DJANGO_SECRET_KEY")
 if not SECRET_KEY.strip():
     raise ImproperlyConfigured("DJANGO_SECRET_KEY must not be empty.")
 DEBUG = env.bool("DJANGO_DEBUG", default=False)
-ALLOWED_HOSTS = [h.strip() for h in os.environ.get("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1").split(",") if h.strip()]
+ALLOWED_HOSTS = [
+    h.strip() for h in (os.environ.get("DJANGO_ALLOWED_HOSTS") or "localhost,127.0.0.1").split(",") if h.strip()
+]
+
+
+def env_int(name, default):
+    raw = os.environ.get(name, "").strip()
+    return int(raw) if raw else default
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -68,11 +75,11 @@ WSGI_APPLICATION = "config.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.environ.get("DB_NAME", "leave_tracker"),
-        "USER": os.environ.get("DB_USER", "postgres"),
+        "NAME": os.environ.get("DB_NAME") or "leave_tracker",
+        "USER": os.environ.get("DB_USER") or "postgres",
         "PASSWORD": os.environ.get("DB_PASSWORD", ""),
-        "HOST": os.environ.get("DB_HOST", "localhost"),
-        "PORT": os.environ.get("DB_PORT", "5432"),
+        "HOST": os.environ.get("DB_HOST") or "localhost",
+        "PORT": os.environ.get("DB_PORT") or "5432",
     }
 }
 
@@ -115,8 +122,8 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=env.int("JWT_ACCESS_TOKEN_LIFETIME_MINUTES", default=15)),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=env.int("JWT_REFRESH_TOKEN_LIFETIME_DAYS", default=1)),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=env_int("JWT_ACCESS_TOKEN_LIFETIME_MINUTES", 15)),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=env_int("JWT_REFRESH_TOKEN_LIFETIME_DAYS", 1)),
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
     "AUTH_HEADER_TYPES": ("Bearer",),
