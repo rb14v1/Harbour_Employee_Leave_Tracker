@@ -17,9 +17,9 @@ COPY --from=build /app/dist /usr/share/nginx/html
 
 EXPOSE 8080
 
-RUN sed -i -e 's#/var/run/nginx.pid#/tmp/nginx.pid#' -e '/^user /d' /etc/nginx/nginx.conf
+RUN sed -i -e '/^[[:space:]]*pid[[:space:]]/d' -e '/^user /d' /etc/nginx/nginx.conf
 USER nginx
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 CMD wget -q -O /dev/null http://127.0.0.1:8080/healthz || exit 1
 
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["nginx", "-g", "pid /tmp/nginx.pid; daemon off;"]
